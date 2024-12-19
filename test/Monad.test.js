@@ -1,3 +1,4 @@
+import assert from 'node:assert'
 import * as R from 'ramda'
 import { describe, it } from "vitest"
 
@@ -13,27 +14,21 @@ const wrapString = s => async function* () {
   for (const x of s) yield x
 }
 
-const map = R.curry((fn, it) => ({
-  [Symbol.asyncIterator]: async function* () {
-    for await (const i of it)
-      yield fn(i)
-  }
-}))
+const map = R.curry((fn, it) => async function* () {
+  for await (const i of it)
+    yield fn(i)
+})
 
-const filter = R.curry((p, it) => ({
-  [Symbol.asyncIterator]: async function* () {
-    for await (const i of it)
-      if (p(i)) yield i
-  }
-}))
+const filter = R.curry((p, it) => async function* () {
+  for await (const i of it)
+    if (p(i)) yield i
+})
 
-const chain = R.curry((fn, its) => ({
-  [Symbol.asyncIterator]: async function* () {
-    for await (const it of its)
-      for await (const i of fn(it))
-        yield i
-  }
-}))
+const chain = R.curry((fn, its) => async function* () {
+  for await (const it of its)
+    for await (const i of fn(it))
+      yield i
+})
 
 const reduce = R.curry(async (fn, init, it) => {
   let acc = init
@@ -54,19 +49,19 @@ it => {
 AsyncIterator.prototype.map =
 AsyncIterator.prototype['fantasy-land/map'] =
 function (fn) {
-  return AsyncIterator.of(map(fn, this))
+  return new AsyncIterator(map(fn, this))
 }
 
 AsyncIterator.prototype.filter =
 AsyncIterator.prototype['fantasy-land/filter'] =
 function (fn) {
-  return AsyncIterator.of(filter(fn, this))
+  return new AsyncIterator(filter(fn, this))
 }
 
 AsyncIterator.prototype.chain =
 AsyncIterator.prototype['fantasy-land/chain'] =
 function (fn) {
-  return AsyncIterator.of(chain(fn, this))
+  return new AsyncIterator(chain(fn, this))
 }
 
 AsyncIterator.prototype.reduce =
@@ -75,38 +70,71 @@ function (fn, init) {
   return reduce(fn, init, this)
 }
 
-const syncNumbers = n => ({
-  [Symbol.iterator]: function* () {
-    for (let i = 0; i < n; i++) yield i
-  }
-})
-
-const asyncNumbers = n => ({
+const asyncIterator = xs => ({
   [Symbol.asyncIterator]: async function* () {
-    for (let i = 0; i < n; i++) yield i
+    for (const x of xs) yield x
   }
 })
 
-it.only('xxx', async () => {
-  // console.log(new AsyncIterator(syncNumbers(10)))
-  const it = AsyncIterator.of(syncNumbers(10))
-  // const it = AsyncIterator.of(asyncNumbers(10)).map(x => x * 3).filter(x => x % 2)
-  // const it = AsyncIterator.of('hello, world!')
+const syncIterator = xs => ({
+  [Symbol.iterator]: function* () {
+    for (const x of xs) yield x
+  }
+})
 
-  // const it = AsyncIterator.of(asyncNumbers(10))
-  //   .chain(x => asyncNumbers(x + 1))
-  //   .map(x => x * 3)
-  //   .filter(x => x % 2)
+describe('AsyncIterator', () => {
+  it('AsyncIterator.of [array]', async () => {
+    const expected = [0, 12, 31]
+    const it = AsyncIterator.of(expected)
+    const actual = (await Array.fromAsync(it))
+    assert.deepStrictEqual(actual, expected)
+  })
 
-  // const it = R.map(x => x * 3, AsyncIterator.of(asyncNumbers(10)))
-  // const it = R.filter(x => x % 2, AsyncIterator.of(asyncNumbers(10)))
-  // const it = R.chain(x => asyncNumbers(x), AsyncIterator.of(asyncNumbers(10)))
+  it('AsyncIterator.of [string]', async () => {
+    const expected = 'Hello, world!'
+    const it = AsyncIterator.of(expected)
+    const actual = (await Array.fromAsync(it)).join('')
+    assert.strictEqual(actual, expected)
+  })
 
-  // const it = AsyncIterator.of([23, 21, 42])
-  for await (const x of it) console.log(x)
-  // for await (const x of it) console.log(x)
-  // for await (const x of it) console.log(x)
-  // for await (const x of it) console.log(x)
-  // for await (const x of AsyncIterator.of(syncNumbers(10))) console.log(x)
+  it('AsyncIterator.of [Symbol.asyncIterator]', async () => {
+    const expected = [0, 12, 31]
+    const it = AsyncIterator.of(asyncIterator(expected))
+    const actual = await Array.fromAsync(it)
+    assert.deepStrictEqual(actual, expected)
+  })
 
+  it('AsyncIterator.of [Symbol.iterator]', async () => {
+    const expected = [0, 12, 31]
+    const it = AsyncIterator.of(syncIterator(expected))
+    const actual = await Array.fromAsync(it)
+    assert.deepStrictEqual(actual, expected)
+  })
+
+  it('map', async () => {
+    const double = x => x * 2
+    const range = R.range(0, 10)
+    const it = AsyncIterator.of(syncIterator(range))
+    const expected = range.map(double)
+    const actual = await Array.fromAsync(it.map(double))
+    assert.deepStrictEqual(actual, expected)
+  })
+
+  it('filter', async () => {
+    const odd = x => x % 2
+    const range = R.range(0, 10)
+    const it = AsyncIterator.of(syncIterator(range))
+    const expected = range.filter(odd)
+    const actual = await Array.fromAsync(it.filter(odd))
+    assert.deepStrictEqual(actual, expected)
+  })
+
+  it('chain', async () => {
+    const fill = x => AsyncIterator.of(Array(x).fill(x))
+    const range = R.range(0, 10)
+    const it = AsyncIterator.of(syncIterator(range))
+    const expected = R.chain(x => Array(x).fill(x), range)
+    const actual = await Array.fromAsync(it.chain(fill))
+    assert.deepStrictEqual(actual, expected)
+  })
 })
