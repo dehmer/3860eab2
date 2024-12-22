@@ -132,38 +132,3 @@ it('transducer protocol', () => {
     console.log(transduce(fn, R.add, 0, R.range(1, 11)))
 })
 
-it('transducer protocol', () => {
-  const concat = (xs, x) => R.concat(xs, [x])
-
-  const step = (xf, fn) => ({
-    '@@transducer/init': xf['@@transducer/init'],
-    '@@transducer/result': xf['@@transducer/result'],
-    '@@transducer/step': fn
-  })
-
-  const map = fn => xf => step(xf, (acc, x) => xf['@@transducer/step'](acc, fn(x)))
-  const filter = p => xf => step(xf, (acc, x) => p(x) ? xf['@@transducer/step'](acc, x) : acc)
-  const chain = fn => xf => step(xf, (acc, x) => fn(x).reduce(xf['@@transducer/step'], acc))
-
-  const fn = R.compose(
-    map(R.add(1)),
-    chain(x => Array(x).fill(x)),
-    filter(isEven),
-    map(R.multiply(3))
-  )
-
-  const transduce =
-    (fn, reducer, init, xs) => {
-      const xf = fn({
-        '@@transducer/init': () => init,
-        '@@transducer/step': (acc, x) => reducer(acc, x),
-        '@@transducer/result': R.identity
-      })
-
-      const acc = xs.reduce(xf['@@transducer/step'], xf['@@transducer/init']())
-      return xf['@@transducer/result'](acc)
-    }
-
-    console.log(transduce(fn, concat, [], R.range(1, 11)))
-    console.log(transduce(fn, R.add, 0, R.range(1, 11)))
-})
