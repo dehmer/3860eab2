@@ -1,5 +1,6 @@
+import assert from 'node:assert'
 import * as R from 'ramda'
-import { describe, it } from "vitest"
+import { it } from "vitest"
 
 // Reference: https://www.youtube.com/embed/SJjOp0X_MVA
 
@@ -14,7 +15,8 @@ it('', () => {
   )
 
   const actual = R.range(1, 11).map(fn)
-  console.log(actual)
+  const expected = [12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
+  assert.deepStrictEqual(actual, expected)
 })
 
 const isEven = x => x % 2 === 0
@@ -26,27 +28,31 @@ it('', () => {
     .filter(isEven)
     .reduce(R.add, 0)
 
-  console.log(actual)
+  assert.strictEqual(actual, 30)
 })
 
 it('', () => {
   const map = (xs, fn) =>
-    xs.reduce((acc, x) => R.concat(acc, [fn(x)]), [])
+    xs.reduce((acc, x) =>
+      R.concat(acc, [fn(x)]), [])
 
   const actual = map(R.range(1, 11), R.add(1))
-  console.log(actual)
+  const expected = [2, 3, 4,  5,  6, 7, 8, 9, 10, 11]
+  assert.deepStrictEqual(actual, expected)
 })
 
 it('', () => {
   const map = fn => (acc, x) => R.concat(acc, [fn(x)])
   const actual = R.range(1, 11).reduce(map(R.add(1)), [])
-  console.log(actual)
+  const expected = [2, 3, 4,  5,  6, 7, 8, 9, 10, 11]
+  assert.deepStrictEqual(actual, expected)
 })
 
 it('', () => {
   const filter = p => (acc, x) => p(x) ? R.concat(acc, [x]) : acc
   const actual = R.range(1, 11).reduce(filter(isOdd), [])
-  console.log(actual)
+  const expected = [1, 3, 5, 7, 9]
+  assert.deepStrictEqual(actual, expected)
 })
 
 it('', () => {
@@ -81,10 +87,15 @@ it('', () => {
     (xf, reducer, init, xs) =>
       xs.reduce(xf(reducer), init)
 
-  console.log(R.range(1, 11).reduce(xf(concat), []))
-  console.log(R.range(1, 11).reduce(xf(R.add), 0))
-  console.log(transduce(xf, R.add, 0, R.range(1, 11)))
-  console.log(transduce(xf, concat, [], R.range(1, 11)))
+  assert.deepStrictEqual(
+    R.range(1, 11).reduce(xf(concat), []),
+    transduce(xf, concat, [], R.range(1, 11))
+  )
+
+  assert.deepStrictEqual(
+    R.range(1, 11).reduce(xf(R.add), 0),
+    transduce(xf, R.add, 0, R.range(1, 11))
+  )
 })
 
 it('transducer protocol', () => {
@@ -95,7 +106,6 @@ it('transducer protocol', () => {
     '@@transducer/step': (acc, x) => xf['@@transducer/step'](acc, fn(x)),
     '@@transducer/result': xf['@@transducer/result']
   })
-
 
   const filter = p => xf => ({
     '@@transducer/init': xf['@@transducer/init'],
@@ -128,7 +138,12 @@ it('transducer protocol', () => {
       return xf['@@transducer/result'](acc)
     }
 
-    console.log(transduce(fn, concat, [], R.range(1, 11)))
-    console.log(transduce(fn, R.add, 0, R.range(1, 11)))
-})
+  assert.deepStrictEqual(transduce(fn, concat, [], R.range(1, 11)), [
+     6,  6, 12, 12, 12, 12, 18, 18, 18,
+    18, 18, 18, 24, 24, 24, 24, 24, 24,
+    24, 24, 30, 30, 30, 30, 30, 30, 30,
+    30, 30, 30
+  ])
 
+  assert.strictEqual(transduce(fn, R.add, 0, R.range(1, 11)), 660)
+})

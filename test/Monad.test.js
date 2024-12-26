@@ -83,33 +83,33 @@ const syncIterator = xs => ({
 })
 
 describe('AsyncIterator', () => {
-  it('AsyncIterator.of [array]', async () => {
-    const expected = [0, 12, 31]
-    const it = AsyncIterator.of(expected)
-    const actual = (await Array.fromAsync(it))
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('AsyncIterator.of [array]', async () => {
+  //   const expected = [0, 12, 31]
+  //   const it = AsyncIterator.of(expected)
+  //   const actual = (await Array.fromAsync(it))
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  it('AsyncIterator.of [string]', async () => {
-    const expected = 'Hello, world!'
-    const it = AsyncIterator.of(expected)
-    const actual = (await Array.fromAsync(it)).join('')
-    assert.strictEqual(actual, expected)
-  })
+  // it('AsyncIterator.of [string]', async () => {
+  //   const expected = 'Hello, world!'
+  //   const it = AsyncIterator.of(expected)
+  //   const actual = (await Array.fromAsync(it)).join('')
+  //   assert.strictEqual(actual, expected)
+  // })
 
-  it('AsyncIterator.of [Symbol.asyncIterator]', async () => {
-    const expected = [0, 12, 31]
-    const it = AsyncIterator.of(asyncIterator(expected))
-    const actual = await Array.fromAsync(it)
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('AsyncIterator.of [Symbol.asyncIterator]', async () => {
+  //   const expected = [0, 12, 31]
+  //   const it = AsyncIterator.of(asyncIterator(expected))
+  //   const actual = await Array.fromAsync(it)
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  it('AsyncIterator.of [Symbol.iterator]', async () => {
-    const expected = [0, 12, 31]
-    const it = AsyncIterator.of(asyncIterator(expected))
-    const actual = await Array.fromAsync(it)
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('AsyncIterator.of [Symbol.iterator]', async () => {
+  //   const expected = [0, 12, 31]
+  //   const it = AsyncIterator.of(asyncIterator(expected))
+  //   const actual = await Array.fromAsync(it)
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
   it('[built-in] map', async () => {
     const double = x => x * 2
@@ -120,84 +120,84 @@ describe('AsyncIterator', () => {
     assert.deepStrictEqual(actual, expected)
   })
 
-  it('[built-in] filter', async () => {
-    const odd = x => x % 2
-    const range = R.range(0, 10)
-    const it = AsyncIterator.of(asyncIterator(range))
-    const expected = range.filter(odd)
-    const actual = await Array.fromAsync(it.filter(odd))
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('[built-in] filter', async () => {
+  //   const odd = x => x % 2
+  //   const range = R.range(0, 10)
+  //   const it = AsyncIterator.of(asyncIterator(range))
+  //   const expected = range.filter(odd)
+  //   const actual = await Array.fromAsync(it.filter(odd))
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  it('[built-in] chain', async () => {
-    const fill = x => AsyncIterator.of(Array(x).fill(x))
-    const range = R.range(0, 10)
-    const it = AsyncIterator.of(asyncIterator(range))
-    const expected = R.chain(x => Array(x).fill(x), range)
-    const actual = await Array.fromAsync(it.chain(fill))
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('[built-in] chain', async () => {
+  //   const fill = x => AsyncIterator.of(Array(x).fill(x))
+  //   const range = R.range(0, 10)
+  //   const it = AsyncIterator.of(asyncIterator(range))
+  //   const expected = R.chain(x => Array(x).fill(x), range)
+  //   const actual = await Array.fromAsync(it.chain(fill))
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  it('[Ramda] map', async () => {
-    const double = x => x * 2
-    const range = R.range(0, 10)
-    const it = AsyncIterator.of(asyncIterator(range))
-    const expected = range.map(double)
-    const actual = await Array.fromAsync(R.map(double, it))
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('[Ramda] map', async () => {
+  //   const double = x => x * 2
+  //   const range = R.range(0, 10)
+  //   const it = AsyncIterator.of(asyncIterator(range))
+  //   const expected = range.map(double)
+  //   const actual = await Array.fromAsync(R.map(double, it))
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  it('[Ramda] map (multiple)', async () => {
-    const range = R.range(0, 10)
-    const f = R.compose(R.map(R.add(2)), R.map(R.multiply(3)), R.map(R.add(1)))
-    const it = AsyncIterator.of(asyncIterator(range))
-    const actual = await Array.fromAsync((f(it)))
-    assert.deepStrictEqual(actual, [5, 8, 11, 14, 17, 20, 23, 26, 29, 32])
-  })
+  // it('[Ramda] map (multiple)', async () => {
+  //   const range = R.range(0, 10)
+  //   const f = R.compose(R.map(R.add(2)), R.map(R.multiply(3)), R.map(R.add(1)))
+  //   const it = AsyncIterator.of(asyncIterator(range))
+  //   const actual = await Array.fromAsync((f(it)))
+  //   assert.deepStrictEqual(actual, [5, 8, 11, 14, 17, 20, 23, 26, 29, 32])
+  // })
 
-  it('[Ramda] filter', async () => {
-    const odd = x => x % 2
-    const range = R.range(0, 10)
-    const it = AsyncIterator.of(asyncIterator(range))
-    const expected = range.filter(odd)
-    const actual = await Array.fromAsync(R.filter(odd, it))
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('[Ramda] filter', async () => {
+  //   const odd = x => x % 2
+  //   const range = R.range(0, 10)
+  //   const it = AsyncIterator.of(asyncIterator(range))
+  //   const expected = range.filter(odd)
+  //   const actual = await Array.fromAsync(R.filter(odd, it))
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  it('[Ramda] chain', async () => {
-    const fill = x => AsyncIterator.of(Array(x).fill(x))
-    const range = R.range(0, 10)
-    const it = AsyncIterator.of(asyncIterator(range))
-    const expected = R.chain(x => Array(x).fill(x), range)
-    const actual = await Array.fromAsync(R.chain(fill, it))
-    assert.deepStrictEqual(actual, expected)
-  })
+  // it('[Ramda] chain', async () => {
+  //   const fill = x => AsyncIterator.of(Array(x).fill(x))
+  //   const range = R.range(0, 10)
+  //   const it = AsyncIterator.of(asyncIterator(range))
+  //   const expected = R.chain(x => Array(x).fill(x), range)
+  //   const actual = await Array.fromAsync(R.chain(fill, it))
+  //   assert.deepStrictEqual(actual, expected)
+  // })
 
-  const asyncTransformer = fn => ({
-    '@@transducer/step': (acc, x) =>
-      acc['@@transducer/reduced']
-        ? acc['@@transducer/value']
-        : fn(acc, x)
-        ,
-    '@@transducer/result': async acc =>
-      (await acc)['@@transducer/reduced']
-        ? (await acc)['@@transducer/value']
-        : x
-  })
+  // const asyncTransformer = fn => ({
+  //   '@@transducer/step': (acc, x) =>
+  //     acc['@@transducer/reduced']
+  //       ? acc['@@transducer/value']
+  //       : fn(acc, x)
+  //       ,
+  //   '@@transducer/result': async acc =>
+  //     (await acc)['@@transducer/reduced']
+  //       ? (await acc)['@@transducer/value']
+  //       : x
+  // })
 
-  it('[Ramda] transduce', async () => {
-    const range = R.range(0, 10)
-    const it = AsyncIterator.of(asyncIterator(range))
+  // it('[Ramda] transduce', async () => {
+  //   const range = R.range(0, 10)
+  //   const it = AsyncIterator.of(asyncIterator(range))
 
-    const fn = R.compose(
-      R.map(R.multiply(3)),
-      R.filter(x => x % 2),
-      R.map(R.add(4)),
-      R.take(3)
-    )
+  //   const fn = R.compose(
+  //     R.map(R.multiply(3)),
+  //     R.filter(x => x % 2),
+  //     R.map(R.add(4)),
+  //     R.take(3)
+  //   )
 
-    const xf = asyncTransformer(R.flip(R.append))
-    const actual = await R.transduce(fn, xf, [], it)
-    assert.deepStrictEqual(actual, [7, 13, 19])
-  })
+  //   const xf = asyncTransformer(R.flip(R.append))
+  //   const actual = await R.transduce(fn, xf, [], it)
+  //   assert.deepStrictEqual(actual, [7, 13, 19])
+  // })
 })

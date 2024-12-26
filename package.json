@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "vitest run NWCalvank.test.js"
+    "test": "vitest run"
   },
   "author": "",
   "license": "ISC",
